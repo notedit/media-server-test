@@ -118,24 +118,17 @@ module.exports = class MediaServer {
 
     }
 
-    viewRTPBroadcastStream(offerSDP, port) {
+    viewRTPBroadcastStream(id, offerSDP) {
 
+        const roomData = this.rooms[id];
+        const incomingStreams = roomData.incomingStreams;
+        const origVideoOffer = roomData.videoOffer;
+        const origAudioOffer = roomData.audioOffer;
+
+        //TODO: Dynamically assign and save port in roomData
         const videoPort = 5004;
 
         const receiver = {};
-
-        //Create new video session codecs
-        const video = new MediaInfo("video", "video");
-
-        //Add h264 codec
-        video.addCodec(new CodecInfo("h264", 96));
-
-        //Create session for video
-        receiver.video = this.streamer.createSession(video, {
-            local  : {
-                port: videoPort
-            }
-        });
 
         //Process the sdp
         const offer = SDPInfo.process(offerSDP);
@@ -187,6 +180,22 @@ module.exports = class MediaServer {
             video.setDirection(Direction.RECVONLY);
             //Add it to answer
             answer.addMedia(video);
+
+            // --- Receive the RTP session from the same encoding defined by browser in original offer
+            //Create video media
+            const video2 = new MediaInfo(origVideoOffer.getId(), "video");
+
+            //Get codec types
+            const h264_2 = origVideoOffer.getCodec("h264");
+            //Add video codecs
+            video2.addCodec(h264_2);
+
+            //Create session for video
+            receiver.video = this.streamer.createSession(video2, {
+                local  : {
+                    port: videoPort
+                }
+            });
         }
 
         //Set RTP local  properties
