@@ -213,12 +213,6 @@ module.exports = class MediaServer {
 
         const broadcast = {};
 
-        //Create new video session codecs
-        const video = new MediaInfo("video","video");
-
-        //Add vp9 codec
-        video.addCodec(new CodecInfo("vp9",1024));
-
         const offer = SDPInfo.process(offerSdp);
         //Create an DTLS ICE transport in that enpoint
         const transport = this.endpoint.createTransport({
