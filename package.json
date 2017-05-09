@@ -31,7 +31,7 @@
     "start": "concurrently 'npm run client' 'npm run server' ",
     "server-local": "npm run start 127.0.0.1",
     "server": "node server/main.js",
-    "client": "react-scripts start",
+    "client": "set HTTPS=true && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
