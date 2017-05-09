@@ -62,26 +62,15 @@ module.exports = class MediaServer {
             answer.addCandidate(candidates[i]);
 
         //If offer had video
-        if (audioOffer)
-        {
-            //Create video media
-            let  audio = new MediaInfo(audioOffer.getId(), "audio");
-            //Set recv only
-            audio.setDirection(Direction.INACTIVE);
-            //Add it to answer
-            answer.addMedia(audio);
-        }
-
-        //If offer had video
         if (videoOffer)
         {
             //Create video media
             let  video = new MediaInfo(videoOffer.getId(), "video");
 
             //Get codec types
-            let h264 = videoOffer.getCodec("h264");
+            let vp9 = videoOffer.getCodec("vp9");
             //Add video codecs
-            video.addCodec(h264);
+            video.addCodec(vp9);
             //Set recv only
             video.setDirection(Direction.SENDONLY);
             //Add it to answer
@@ -125,10 +114,27 @@ module.exports = class MediaServer {
         const origVideoOffer = roomData.videoOffer;
         const origAudioOffer = roomData.audioOffer;
 
-        //TODO: Dynamically assign and save port in roomData
         const videoPort = 5004;
 
         const receiver = {};
+
+        //Create audio and video sessions
+        {
+            //Create new video session codecs
+            const video = new MediaInfo("video", "video");
+
+            //Add vp9 codec
+            video.addCodec(origVideoOffer.getCodec("vp9"));
+            video.setBitrate(origVideoOffer.getBitrate())
+
+            //Create session for video
+            receiver.video = this.streamer.createSession(video, {
+                local  : {
+                    ip: this.ip,
+                    port: videoPort
+                }
+            });
+        }
 
         //Process the sdp
         const offer = SDPInfo.process(offerSDP);
@@ -141,8 +147,8 @@ module.exports = class MediaServer {
 
         //Set RTP remote properties
         transport.setRemoteProperties({
-            audio : offer.getMedia("audio"),
-            video : offer.getMedia("video")
+            audio : origAudioOffer,
+            video : origVideoOffer
         });
 
         //Get local DTLS and ICE info
@@ -170,38 +176,20 @@ module.exports = class MediaServer {
         if (videoOffer)
         {
             //Create video media
-            const video = new MediaInfo(videoOffer.getId(), "video");
+            const video = new MediaInfo(origVideoOffer.getId(), "video");
 
-            //Get codec types
-            const h264 = videoOffer.getCodec("h264");
-            //Add video codecs
-            video.addCodec(h264);
+            video.addCodec(origVideoOffer.getCodec("vp9"));
+            video.setBitrate(origVideoOffer.getBitrate())
             //Set send only
-            video.setDirection(Direction.RECVONLY);
+            video.setDirection(Direction.SENDONLY);
             //Add it to answer
             answer.addMedia(video);
-
-            // --- Receive the RTP session from the same encoding defined by browser in original offer
-            //Create video media
-            const video2 = new MediaInfo(origVideoOffer.getId(), "video");
-
-            //Get codec types
-            const h264_2 = origVideoOffer.getCodec("h264");
-            //Add video codecs
-            video2.addCodec(h264_2);
-
-            //Create session for video
-            receiver.video = this.streamer.createSession(video2, {
-                local  : {
-                    port: videoPort
-                }
-            });
         }
 
         //Set RTP local  properties
         transport.setLocalProperties({
-            video : answer.getMedia("video"),
-            audio: answer.getMedia("audio")
+            audio : answer.getMedia("audio"),
+            video : answer.getMedia("video")
         });
 
         //Create new local stream to send to browser
@@ -219,8 +207,6 @@ module.exports = class MediaServer {
         //Add local stream info it to the answer
         answer.addStream(info);
 
-        return answer.toString();
-
     }
 
     broadcastStream(id, offerSdp) {
@@ -230,8 +216,8 @@ module.exports = class MediaServer {
         //Create new video session codecs
         const video = new MediaInfo("video","video");
 
-        //Add h264 codec
-        video.addCodec(new CodecInfo("h264",96));
+        //Add vp9 codec
+        video.addCodec(new CodecInfo("vp9",1024));
 
         const offer = SDPInfo.process(offerSdp);
         //Create an DTLS ICE transport in that enpoint
@@ -286,9 +272,9 @@ module.exports = class MediaServer {
             let  video = new MediaInfo(videoOffer.getId(), "video");
 
             //Get codec types
-            let h264 = videoOffer.getCodec("h264");
+            let vp9 = videoOffer.getCodec("vp9");
             //Add video codecs
-            video.addCodec(h264);
+            video.addCodec(vp9);
             //Set recv only
             video.setDirection(Direction.SENDRECV);
             //Add it to answer
