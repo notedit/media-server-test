@@ -35,8 +35,13 @@ export default class RoomList extends React.Component {
         const rooms = Object.keys(listing).map(function(key, index) {
             return (<div>
                 <Link to={`/cam/${key}`} >
-                    <Button key={index} >{key}</Button>
+                    <Button key={index} >Media Server {key} </Button>
                 </Link>
+
+                <Link to={`/viewrtpcam/${key}`} >
+                    <Button key={`${index}0`} >Media Server via RTP {key} </Button>
+                </Link>
+
             </div>);
         });
 

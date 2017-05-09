@@ -69,9 +69,9 @@ app.get('/cam/:camname', (req, res) => {
     }
 });
 
-app.get('/viewrtpcam', (req, res) => {
+app.get('/viewrtpcam/:camname', (req, res) => {
     if (process.env.NODE_ENV !== 'production') {
-        res.redirect('http://localhost:3000/viewrtpcam');
+        res.redirect('http://localhost:3000/viewrtpcam/' +  + req.params.camname);
     }
     else {
         res.sendFile(path.join(__dirname, '../build', 'index.html'));

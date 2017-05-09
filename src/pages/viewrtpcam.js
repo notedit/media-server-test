@@ -6,11 +6,13 @@ export default class ViewRTPCam extends React.Component {
     constructor(props, b) {
         super();
 
+        const roomName = props.match.params.roomname;
         const remoteStream = null;
 
         this.state = {
+            roomName,
             remoteStream
-        };
+        }
     }
 
     componentWillMount() {
@@ -40,7 +42,7 @@ export default class ViewRTPCam extends React.Component {
                 this.transport.send({
                     event: 'requestToViewRTPBroadcast',
                     sdp,
-                    port: 5004
+                    roomName: this.state.roomName
                 });
 
             });

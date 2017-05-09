@@ -29,7 +29,7 @@ export default class Main extends React.Component {
                 <Route path='/broadcast' render={checkAuth} />
                 <Route path='/login' component={Login} />
                 <Route path='/cam/:roomname' component={Cam} />
-                <Route path='/viewrtpcam' component={ViewRTPCam} />
+                <Route path='/viewrtpcam/:roomname' component={ViewRTPCam} />
             </Switch>
         </main>);
     }

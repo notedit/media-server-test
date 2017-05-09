@@ -49,7 +49,7 @@ const createWebSocketServer = (server, mediaServer) => {
 
                case 'requestToViewRTPBroadcast':
 
-                   const viewableBroadcastRTPAnswer = mediaServer.viewRTPBroadcastStream(parsedMessage.sdp, parsedMessage.port);
+                   const viewableBroadcastRTPAnswer = mediaServer.viewRTPBroadcastStream(parsedMessage.roomName, parsedMessage.sdp);
                    send({viewableRTPBroadcast: viewableBroadcastRTPAnswer});
                    break;
            }
