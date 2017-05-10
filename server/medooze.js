@@ -69,9 +69,9 @@ module.exports = class MediaServer {
             let  video = new MediaInfo(videoOffer.getId(), "video");
 
             //Get codec types
-            let vp9 = videoOffer.getCodec("vp9");
+            let h264 = videoOffer.getCodec("h264");
             //Add video codecs
-            video.addCodec(vp9);
+            video.addCodec(h264);
             //Set recv only
             video.setDirection(Direction.SENDONLY);
             //Add it to answer
@@ -126,8 +126,8 @@ module.exports = class MediaServer {
             //Create new video session codecs
             const video = new MediaInfo(offer.getMedia("video").getId(), "video");
 
-            //Add vp9 codec
-            video.addCodec(origVideoOffer.getCodec("vp9"));
+            //Add h264 codec
+            video.addCodec(origVideoOffer.getCodec("h264"));
             video.setBitrate(origVideoOffer.getBitrate());
 
             //Create session for video
@@ -179,7 +179,7 @@ module.exports = class MediaServer {
             //Create video media
             const video = new MediaInfo(origVideoOffer.getId(), "video");
 
-            video.addCodec(origVideoOffer.getCodec("vp9"));
+            video.addCodec(origVideoOffer.getCodec("h264"));
             video.setBitrate(origVideoOffer.getBitrate());
 
             //Set send only
@@ -269,9 +269,9 @@ module.exports = class MediaServer {
             let  video = new MediaInfo(videoOffer.getId(), "video");
 
             //Get codec types
-            let vp9 = videoOffer.getCodec("vp9");
+            let h264 = videoOffer.getCodec("h264");
             //Add video codecs
-            video.addCodec(vp9);
+            video.addCodec(h264);
             //Set recv only
             video.setDirection(Direction.SENDRECV);
             //Add it to answer
