@@ -177,7 +177,7 @@ module.exports = class MediaServer {
         if (videoOffer)
         {
             //Create video media
-            const video = new MediaInfo(origVideoOffer.getId(), "video");
+            const video = new MediaInfo("video", "video");
 
             video.addCodec(origVideoOffer.getCodec("h264"));
             video.setBitrate(origVideoOffer.getBitrate());
@@ -304,32 +304,28 @@ module.exports = class MediaServer {
             broadcast
         };
 
-        for (let offered of offer.getStreams().values())
-        {
-            //Create the remote stream into the transport
-            const incomingStream = transport.createIncomingStream(offered);
+//Create the remote stream into the transport
+        const incomingStream = transport.createIncomingStream(offer.getFirstStream());
 
-            this.rooms[id].incomingStreams.push(incomingStream);
+        this.rooms[id].incomingStreams.push(incomingStream);
 
-            //Create new local stream with only video
-            const outgoingStream  = transport.createOutgoingStream({
-                audio: false,
-                video: true
-            });
+        //Create new local stream with only video
+        const outgoingStream  = transport.createOutgoingStream({
+            audio: false,
+            video: true
+        });
 
-            //Get local stream info
-            const info = outgoingStream.getStreamInfo();
+        //Get local stream info
+        const info = outgoingStream.getStreamInfo();
 
-            //Copy incoming data from the remote stream to the local one
-            outgoingStream.attachTo(incomingStream);
+        //Copy incoming data from the remote stream to the local one
+        outgoingStream.attachTo(incomingStream);
 
-            // --- Populate the RTP Stream
-            broadcast.video.getOutgoingStreamTrack().attachTo(incomingStream.getVideoTracks()[0]);
+        // --- Populate the RTP Stream
+        broadcast.video.getOutgoingStreamTrack().attachTo(incomingStream.getVideoTracks()[0]);
 
-            //Add local stream info it to the answer
-            answer.addStream(info);
-
-        }
+        //Add local stream info it to the answer
+        answer.addStream(info);
 
         return answer.toString();
     }
