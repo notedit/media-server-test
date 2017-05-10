@@ -135,10 +135,6 @@ module.exports = class MediaServer {
                 local  : {
                     ip: this.ip,
                     port: videoPort
-                },
-                remote: {
-                    ip: this.ip,
-                    port: videoPort
                 }
             });
         }
