@@ -24,7 +24,8 @@ module.exports = class MediaServer {
 
         this.rooms = {};
 
-        this.streamer = medoozeMediaServer.createStreamer();
+        // --- This should probably
+        this.streamer = medoozeMediaServer.createStreamer(publicIp);
     }
 
     listRooms() {
@@ -110,7 +111,6 @@ module.exports = class MediaServer {
     viewRTPBroadcastStream(id, offerSDP) {
 
         const roomData = this.rooms[id];
-        const incomingStreams = roomData.incomingStreams;
         const origVideoOffer = roomData.videoOffer;
         const origAudioOffer = roomData.audioOffer;
 
@@ -118,26 +118,31 @@ module.exports = class MediaServer {
 
         const receiver = {};
 
+        //Process the sdp
+        const offer = SDPInfo.process(offerSDP);
+
         //Create audio and video sessions
         {
             //Create new video session codecs
-            const video = new MediaInfo("video", "video");
+            const video = new MediaInfo(offer.getMedia("video").getId(), "video");
 
             //Add vp9 codec
             video.addCodec(origVideoOffer.getCodec("vp9"));
-            video.setBitrate(origVideoOffer.getBitrate())
+            video.setBitrate(origVideoOffer.getBitrate());
 
             //Create session for video
             receiver.video = this.streamer.createSession(video, {
                 local  : {
                     ip: this.ip,
                     port: videoPort
+                },
+                remote: {
+                    ip: this.ip,
+                    port: videoPort
                 }
             });
         }
 
-        //Process the sdp
-        const offer = SDPInfo.process(offerSDP);
 
         //Create an DTLS ICE transport in that enpoint
         const transport = this.endpoint.createTransport({
@@ -179,7 +184,8 @@ module.exports = class MediaServer {
             const video = new MediaInfo(origVideoOffer.getId(), "video");
 
             video.addCodec(origVideoOffer.getCodec("vp9"));
-            video.setBitrate(origVideoOffer.getBitrate())
+            video.setBitrate(origVideoOffer.getBitrate());
+
             //Set send only
             video.setDirection(Direction.SENDONLY);
             //Add it to answer
@@ -207,6 +213,7 @@ module.exports = class MediaServer {
         //Add local stream info it to the answer
         answer.addStream(info);
 
+        return answer.toString();
     }
 
     broadcastStream(id, offerSdp) {
